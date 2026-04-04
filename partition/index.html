@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>115年度全國語文競賽－臺東縣分區賽</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; font-family: "Microsoft JhengHei", sans-serif; }
+        .container { max-width: 800px; margin-top: 50px; }
+        .header-title { color: #003366; margin-bottom: 30px; text-align: center; font-weight: bold; }
+        .btn-custom { margin: 10px; height: 100px; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .btn-custom:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .footer-note { font-size: 0.9rem; color: #666; text-align: center; margin-top: 30px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="header-title">115年度全國語文競賽－臺東縣分區賽</h1>
+    <p class="text-center mb-4">請選擇所屬單位，系統將進行 Google 帳號身份驗證</p>
+    
+    <div class="row g-3">
+        <!-- 9個單位按鈕 -->
+        <script>
+            const units = ["三和國小", "大坡國小", "成功國小", "尚武國小", "岩灣國小", "朗島國小", "鹿野國小", "綠島國小", "豐年國小"];
+            const gasUrl = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec"; // 這裡填入你的 GAS 網址
+
+            units.forEach(unit => {
+                document.write(`
+                    <div class="col-md-4 col-sm-6">
+                        <a href="${gasUrl}?unit=${encodeURIComponent(unit)}" target="_top" class="btn btn-outline-primary btn-custom w-100">
+                            ${unit}
+                        </a>
+                    </div>
+                `);
+            });
+        </script>
+    </div>
+
+    <div class="footer-note">
+        <hr>
+        <p>※ 點擊按鈕後將彈出 Google 登入視窗，請使用報名時登記之信箱登入。</p>
+        <p>※ 管理人員可點擊任一按鈕進行巡檢。</p>
+    </div>
+</div>
+
+</body>
+</html>
