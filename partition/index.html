@@ -4,96 +4,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>115年度全國語文競賽－臺東縣分區賽</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        h1 { color: #2c3e50; margin-bottom: 30px; }
-        .container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 800px; }
-        button { padding: 15px 25px; font-size: 16px; cursor: pointer; background-color: #3498db; color: white; border: none; border-radius: 5px; transition: 0.3s; }
-        button:hover { background-color: #2980b9; }
-        #user-info { margin-bottom: 20px; font-weight: bold; color: #e67e22; }
-        .loading { display: none; color: #7f8c8d; margin-top: 10px; }
+        body {
+            font-family: "Microsoft JhengHei", sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px #ccc;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 800px;
+            width: 100%;
+        }
+        @media (max-width: 600px) {
+            .container { grid-template-columns: repeat(1, 1fr); }
+        }
+        .school-btn {
+            background-color: #ffffff;
+            border: 2px solid #3498db;
+            color: #3498db;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .school-btn:hover {
+            background-color: #3498db;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .footer {
+            margin-top: 50px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
     </style>
 </head>
 <body>
 
     <h1>115年度全國語文競賽－臺東縣分區賽</h1>
 
-    <div id="g_id_onload"
-         data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse">
-    </div>
-    <div class="g_id_signin" data-type="standard"></div>
-
-    <div id="user-info">請先登入 Google 帳號以啟用功能</div>
-
-    <div class="container" id="unit-buttons" style="display:none;">
-        <!-- 9個單位按鈕 -->
-        <button onclick="checkAccess('三和國小')">三和國小</button>
-        <button onclick="checkAccess('大坡國小')">大坡國小</button>
-        <button onclick="checkAccess('成功國小')">成功國小</button>
-        <button onclick="checkAccess('尚武國小')">尚武國小</button>
-        <button onclick="checkAccess('岩灣國小')">岩灣國小</button>
-        <button onclick="checkAccess('朗島國小')">朗島國小</button>
-        <button onclick="checkAccess('鹿野國小')">鹿野國小</button>
-        <button onclick="checkAccess('綠島國小')">綠島國小</button>
-        <button onclick="checkAccess('豐年國小')">豐年國小</button>
+    <div class="container" id="buttonGrid">
+        <!-- 按鈕由 JavaScript 生成 -->
     </div>
 
-    <p id="status-msg" class="loading">驗證權限中，請稍候...</p>
+    <div class="footer">
+        登入說明：點擊單位後，系統將自動比對您的 Google 瀏覽器帳號。
+    </div>
 
     <script>
+        // 請將下方的 URL 替換為您在 GAS 部署後取得的「網頁應用程式 URL」
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
-        let userEmail = "";
 
-        // 解碼 JWT 取得 Email
-        function decodeJwtResponse(token) {
-            let base64Url = token.split('.')[1];
-            let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            return JSON.parse(jsonPayload);
-        }
+        const schools = [
+            "三和國小", "大坡國小", "成功國小",
+            "尚武國小", "岩灣國小", "朗島國小",
+            "鹿野國小", "綠島國小", "豐年國小"
+        ];
 
-        function handleCredentialResponse(response) {
-            const responsePayload = decodeJwtResponse(response.credential);
-            userEmail = responsePayload.email;
-            document.getElementById("user-info").innerText = "目前登入： " + userEmail;
-            document.getElementById("unit-buttons").style.display = "grid";
-            console.log("登入成功: " + userEmail);
-        }
+        const container = document.getElementById('buttonGrid');
 
-        function checkAccess(unitName) {
-            if (!userEmail) {
-                alert("請先完成 Google 登入");
-                return;
-            }
-
-            document.getElementById("status-msg").style.display = "block";
-
-            fetch(GAS_WEB_APP_URL, {
-                method: "POST",
-                body: JSON.stringify({
-                    email: userEmail,
-                    unit: unitName
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById("status-msg").style.display = "none";
-                if (data.success) {
-                    window.open(data.url, '_blank');
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(err => {
-                document.getElementById("status-msg").style.display = "none";
-                console.error(err);
-                alert("連線後端發生錯誤");
-            });
-        }
+        schools.forEach(school => {
+            const btn = document.createElement('div');
+            btn.className = 'school-btn';
+            btn.innerText = school;
+            btn.onclick = () => {
+                // 跳轉至 GAS 進行權限比對，並傳遞單位名稱
+                const targetUrl = `${GAS_WEB_APP_URL}?unit=${encodeURIComponent(school)}`;
+                window.location.href = targetUrl;
+            };
+            container.appendChild(btn);
+        });
     </script>
 </body>
 </html>
