@@ -4,105 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>115年度全國語文競賽－臺東縣分區賽</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        body { font-family: 'Microsoft JhengHei', sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        h1 { color: #2c3e50; margin-bottom: 30px; }
-        .container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 800px; }
-        button { padding: 15px 25px; font-size: 16px; cursor: pointer; background-color: #3498db; color: white; border: none; border-radius: 5px; transition: 0.3s; }
-        button:hover { background-color: #2980b9; }
-        #login-section { margin-bottom: 20px; padding: 20px; border: 1px dashed #ccc; border-radius: 10px; background: white; text-align: center; }
-        .user-info { margin-bottom: 10px; font-weight: bold; color: #27ae60; }
-        .hidden { display: none; }
+        body { font-family: 'Microsoft JhengHei', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+        h1 { color: #1a73e8; margin-bottom: 10px; }
+        h2 { color: #5f6368; font-weight: normal; margin-bottom: 40px; }
+        .container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 20px; 
+            max-width: 900px; 
+            width: 100%;
+        }
+        .unit-btn { 
+            padding: 20px; 
+            font-size: 18px; 
+            cursor: pointer; 
+            background-color: white; 
+            color: #3c4043; 
+            border: 1px solid #dadce0; 
+            border-radius: 8px; 
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+            font-weight: bold;
+        }
+        .unit-btn:hover { 
+            background-color: #e8f0fe; 
+            color: #1967d2;
+            border-color: #1967d2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .note { margin-top: 50px; color: #70757a; font-size: 14px; text-align: center; }
     </style>
 </head>
 <body>
 
     <h1>115年度全國語文競賽－臺東縣分區賽</h1>
-
-    <div id="login-section">
-        <p id="status-msg">請先登入 Google 帳號以啟用系統</p>
-        <div id="g_id_onload"
-             data-client_id="YOUR_GOOGLE_CLIENT_ID"
-             data-callback="handleCredentialResponse"
-             data-auto_prompt="false">
-        </div>
-        <div class="g_id_signin" data-type="standard"></div>
-    </div>
-
-    <div id="user-display" class="user-info hidden"></div>
+    <h2>各單位競賽成績系統</h2>
 
     <div class="container">
-        <button onclick="accessUnit('三和國小')">三和國小</button>
-        <button onclick="accessUnit('大坡國小')">大坡國小</button>
-        <button onclick="accessUnit('成功國小')">成功國小</button>
-        <button onclick="accessUnit('尚武國小')">尚武國小</button>
-        <button onclick="accessUnit('岩灣國小')">岩灣國小</button>
-        <button onclick="accessUnit('朗島國小')">朗島國小</button>
-        <button onclick="accessUnit('鹿野國小')">鹿野國小</button>
-        <button onclick="accessUnit('綠島國小')">綠島國小</button>
-        <button onclick="accessUnit('豐年國小')">豐年國小</button>
+        <div class="unit-btn" onclick="go('三和國小')">三和國小</div>
+        <div class="unit-btn" onclick="go('大坡國小')">大坡國小</div>
+        <div class="unit-btn" onclick="go('成功國小')">成功國小</div>
+        <div class="unit-btn" onclick="go('尚武國小')">尚武國小</div>
+        <div class="unit-btn" onclick="go('岩灣國小')">岩灣國小</div>
+        <div class="unit-btn" onclick="go('朗島國小')">朗島國小</div>
+        <div class="unit-btn" onclick="go('鹿野國小')">鹿野國小</div>
+        <div class="unit-btn" onclick="go('綠島國小')">綠島國小</div>
+        <div class="unit-btn" onclick="go('豐年國小')">豐年國小</div>
     </div>
 
+    <p class="note">點擊學校後，系統將透過 Google 帳號驗證存取權限。<br>管理員：chienmu@dhips.ttct.edu.tw</p>
+
     <script>
-        let userEmail = "";
+        // 請將下方的網址替換成您部署 GAS 後取得的網頁應用程式網址
         const GAS_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
 
-        // 解碼 JWT 以獲取 Email
-        function decodeJwtResponse(token) {
-            let base64Url = token.split('.')[1];
-            let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            return JSON.parse(jsonPayload);
-        }
-
-        function handleCredentialResponse(response) {
-            const responsePayload = decodeJwtResponse(response.credential);
-            userEmail = responsePayload.email;
-            
-            document.getElementById('status-msg').innerText = "已登入";
-            document.getElementById('user-display').innerText = "目前登入帳號: " + userEmail;
-            document.getElementById('user-display').classList.remove('hidden');
-            console.log("ID: " + responsePayload.sub);
-            console.log('Email: ' + responsePayload.email);
-        }
-
-        async function accessUnit(unitName) {
-            if (!userEmail) {
-                alert("請先完成 Google 登入驗證！");
-                return;
-            }
-
-            const btn = event.target;
-            const originalText = btn.innerText;
-            btn.innerText = "驗證中...";
-            btn.disabled = true;
-
-            try {
-                const response = await fetch(GAS_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        email: userEmail,
-                        unit: unitName
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    window.open(result.url, '_blank');
-                } else {
-                    alert(result.message);
-                }
-            } catch (error) {
-                alert("連線失敗，請檢查網路或 GAS 部署設定。");
-                console.error(error);
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
-            }
+        function go(unitName) {
+            // 直接跳轉到 GAS，帶上單位名稱參數
+            const finalUrl = GAS_URL + "?unit=" + encodeURIComponent(unitName);
+            window.location.href = finalUrl;
         }
     </script>
 </body>
