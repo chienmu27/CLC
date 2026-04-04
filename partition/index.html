@@ -4,82 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>115年度全國語文競賽－臺東縣分區賽</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        body {
-            font-family: "Microsoft JhengHei", Arial, sans-serif;
-            background-color: #f4f7f6;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #3498db;
-            padding-bottom: 10px;
-        }
-        .container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            max-width: 800px;
-            width: 100%;
-        }
-        .school-btn {
-            background-color: #ffffff;
-            border: 2px solid #3498db;
-            color: #3498db;
-            padding: 15px 20px;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            text-align: center;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        .school-btn:hover {
-            background-color: #3498db;
-            color: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .footer {
-            margin-top: 40px;
-            font-size: 14px;
-            color: #7f8c8d;
-        }
+        body { font-family: 'Microsoft JhengHei', sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        h1 { color: #2c3e50; margin-bottom: 30px; }
+        .container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 800px; }
+        button { padding: 15px 25px; font-size: 16px; cursor: pointer; background-color: #3498db; color: white; border: none; border-radius: 5px; transition: 0.3s; }
+        button:hover { background-color: #2980b9; }
+        #login-section { margin-bottom: 20px; padding: 20px; border: 1px dashed #ccc; border-radius: 10px; background: white; text-align: center; }
+        .user-info { margin-bottom: 10px; font-weight: bold; color: #27ae60; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
     <h1>115年度全國語文競賽－臺東縣分區賽</h1>
 
-    <div class="container">
-        <!-- 9 個單位按鈕 -->
-        <button class="school-btn" onclick="goToVerify('三和國小')">三和國小</button>
-        <button class="school-btn" onclick="goToVerify('大坡國小')">大坡國小</button>
-        <button class="school-btn" onclick="goToVerify('成功國小')">成功國小</button>
-        <button class="school-btn" onclick="goToVerify('尚武國小')">尚武國小</button>
-        <button class="school-btn" onclick="goToVerify('岩灣國小')">岩灣國小</button>
-        <button class="school-btn" onclick="goToVerify('朗島國小')">朗島國小</button>
-        <button class="school-btn" onclick="goToVerify('鹿野國小')">鹿野國小</button>
-        <button class="school-btn" onclick="goToVerify('綠島國小')">綠島國小</button>
-        <button class="school-btn" onclick="goToVerify('豐年國小')">豐年國小</button>
+    <div id="login-section">
+        <p id="status-msg">請先登入 Google 帳號以啟用系統</p>
+        <div id="g_id_onload"
+             data-client_id="YOUR_GOOGLE_CLIENT_ID"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
     </div>
 
-    <div class="footer">
-        請使用指定的 Google 帳號登入以進入系統
+    <div id="user-display" class="user-info hidden"></div>
+
+    <div class="container">
+        <button onclick="accessUnit('三和國小')">三和國小</button>
+        <button onclick="accessUnit('大坡國小')">大坡國小</button>
+        <button onclick="accessUnit('成功國小')">成功國小</button>
+        <button onclick="accessUnit('尚武國小')">尚武國小</button>
+        <button onclick="accessUnit('岩灣國小')">岩灣國小</button>
+        <button onclick="accessUnit('朗島國小')">朗島國小</button>
+        <button onclick="accessUnit('鹿野國小')">鹿野國小</button>
+        <button onclick="accessUnit('綠島國小')">綠島國小</button>
+        <button onclick="accessUnit('豐年國小')">豐年國小</button>
     </div>
 
     <script>
-        // 請將下方的 URL 替換為您在 GAS 部署後取得的「網頁應用程式 URL」
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
+        let userEmail = "";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
 
-        function goToVerify(schoolName) {
-            // 帶參數跳轉到 GAS 進行驗證
-            const target = GAS_WEB_APP_URL + "?school=" + encodeURIComponent(schoolName);
-            window.location.href = target;
+        // 解碼 JWT 以獲取 Email
+        function decodeJwtResponse(token) {
+            let base64Url = token.split('.')[1];
+            let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        function handleCredentialResponse(response) {
+            const responsePayload = decodeJwtResponse(response.credential);
+            userEmail = responsePayload.email;
+            
+            document.getElementById('status-msg').innerText = "已登入";
+            document.getElementById('user-display').innerText = "目前登入帳號: " + userEmail;
+            document.getElementById('user-display').classList.remove('hidden');
+            console.log("ID: " + responsePayload.sub);
+            console.log('Email: ' + responsePayload.email);
+        }
+
+        async function accessUnit(unitName) {
+            if (!userEmail) {
+                alert("請先完成 Google 登入驗證！");
+                return;
+            }
+
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "驗證中...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        email: userEmail,
+                        unit: unitName
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    window.open(result.url, '_blank');
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                alert("連線失敗，請檢查網路或 GAS 部署設定。");
+                console.error(error);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
     </script>
 </body>
