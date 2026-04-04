@@ -5,43 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>115年度全國語文競賽－臺東縣分區賽</title>
     <style>
-        body { font-family: 'Microsoft JhengHei', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
-        h1 { color: #1a73e8; margin-bottom: 10px; }
-        h2 { color: #5f6368; font-weight: normal; margin-bottom: 40px; }
+        body { font-family: 'PingFang TC', 'Heiti TC', 'Microsoft JhengHei', sans-serif; background-color: #f8f9fa; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; margin: 0; }
+        .header { text-align: center; margin-bottom: 30px; }
+        h1 { color: #1a73e8; font-size: 28px; margin-bottom: 10px; }
+        h2 { color: #5f6368; font-size: 18px; font-weight: normal; }
         .container { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-            gap: 20px; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 15px; 
             max-width: 900px; 
             width: 100%;
         }
         .unit-btn { 
-            padding: 20px; 
+            padding: 25px 15px; 
             font-size: 18px; 
             cursor: pointer; 
             background-color: white; 
             color: #3c4043; 
             border: 1px solid #dadce0; 
-            border-radius: 8px; 
-            transition: all 0.2s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 12px; 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px rgba(60,64,67,0.3);
             text-align: center;
-            font-weight: bold;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .unit-btn:hover { 
-            background-color: #e8f0fe; 
-            color: #1967d2;
-            border-color: #1967d2;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background-color: #f1f3f4; 
+            color: #174ea6;
+            border-color: #1a73e8;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(60,64,67,0.15);
         }
-        .note { margin-top: 50px; color: #70757a; font-size: 14px; text-align: center; }
+        .unit-btn:active {
+            background-color: #e8f0fe;
+            transform: translateY(0);
+        }
+        .note { margin-top: 40px; color: #70757a; font-size: 14px; text-align: center; line-height: 1.6; }
+        .admin-link { color: #1a73e8; text-decoration: none; }
     </style>
 </head>
 <body>
 
-    <h1>115年度全國語文競賽－臺東縣分區賽</h1>
-    <h2>各單位競賽成績系統</h2>
+    <div class="header">
+        <h1>115年度全國語文競賽－臺東縣分區賽</h1>
+        <h2>各試算表連結系統</h2>
+    </div>
 
     <div class="container">
         <div class="unit-btn" onclick="go('三和國小')">三和國小</div>
@@ -55,14 +66,22 @@
         <div class="unit-btn" onclick="go('豐年國小')">豐年國小</div>
     </div>
 
-    <p class="note">點擊學校後，系統將透過 Google 帳號驗證存取權限。<br>管理員：chienmu@dhips.ttct.edu.tw</p>
+    <div class="note">
+        使用說明：點擊單位後，系統將自動請求 Google 帳號驗證。<br>
+        若出現「Google 尚未驗證此應用程式」，請點擊「進階」並選擇「前往(不安全)」以繼續。<br>
+        管理員：<a href="mailto:chienmu@dhips.ttct.edu.tw" class="admin-link">chienmu@dhips.ttct.edu.tw</a>
+    </div>
 
     <script>
-        // 請將下方的網址替換成您部署 GAS 後取得的網頁應用程式網址
+        // --- 請在此處填入您的 GAS 部署網址 ---
         const GAS_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
 
         function go(unitName) {
-            // 直接跳轉到 GAS，帶上單位名稱參數
+            // 顯示簡易載入狀態
+            const btns = document.querySelectorAll('.unit-btn');
+            btns.forEach(b => b.style.opacity = '0.5');
+            
+            // 跳轉至 GAS 進行身分驗證
             const finalUrl = GAS_URL + "?unit=" + encodeURIComponent(unitName);
             window.location.href = finalUrl;
         }
