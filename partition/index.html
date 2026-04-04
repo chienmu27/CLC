@@ -5,38 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>115年度全國語文競賽－臺東縣分區賽</title>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        h1 { color: #2c3e50; margin-bottom: 30px; text-align: center; }
-        .container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 800px; width: 100%; }
-        @media (max-width: 600px) { .container { grid-template-columns: repeat(1, 1fr); } }
-        .school-btn { background-color: #ffffff; border: 2px solid #3498db; color: #3498db; padding: 20px; font-size: 18px; font-weight: bold; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .school-btn:hover { background-color: #3498db; color: white; transform: translateY(-3px); }
-        #loading { display: none; margin-top: 20px; color: #e67e22; font-weight: bold; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        header { background-color: #2c3e50; color: white; width: 100%; padding: 20px 0; text-align: center; margin-bottom: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { margin: 0; font-size: 24px; }
+        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 1000px; width: 100%; padding: 0 20px; box-sizing: border-box; }
+        .school-btn { background-color: #ffffff; border: 2px solid #3498db; color: #3498db; padding: 25px 15px; font-size: 18px; font-weight: bold; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-decoration: none; }
+        .school-btn:hover { background-color: #3498db; color: white; transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .footer { margin-top: 50px; font-size: 14px; color: #7f8c8d; text-align: center; line-height: 1.6; }
+        #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <h1>115年度全國語文競賽－臺東縣分區賽</h1>
+    <header>
+        <h1>115年度全國語文競賽－臺東縣分區賽</h1>
+    </header>
 
-    <div class="container" id="buttonGrid"></div>
-    <div id="loading">正在驗證身份，請稍候...</div>
+    <div class="container" id="buttonGrid">
+        <!-- 按鈕自動生成 -->
+    </div>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div>正在連接驗證系統...</div>
+    </div>
+
+    <div class="footer">
+        系統將自動比對您的 Google 帳號權限<br>
+        如有多個帳號，請在下一步選擇正確的公務信箱
+    </div>
 
     <script>
-        // 請務必更新為您「新部署」後的網址
+        // 重要：請替換成您最新的 GAS 部署網址
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
 
-        const schools = ["三和國小", "大坡國小", "成功國小", "尚武國小", "岩灣國小", "朗島國小", "鹿野國小", "綠島國小", "豐年國小"];
+        const schools = [
+            "三和國小", "大坡國小", "成功國小",
+            "尚武國小", "岩灣國小", "朗島國小",
+            "鹿野國小", "綠島國小", "豐年國小"
+        ];
+
         const container = document.getElementById('buttonGrid');
-        const loader = document.getElementById('loading');
+        const loader = document.getElementById('loading-overlay');
 
         schools.forEach(school => {
-            const btn = document.createElement('div');
+            const btn = document.createElement('a');
             btn.className = 'school-btn';
+            btn.href = "#";
             btn.innerText = school;
-            btn.onclick = () => {
-                loader.style.display = 'block';
-                container.style.opacity = '0.5';
-                container.style.pointerEvents = 'none';
+            btn.onclick = (e) => {
+                e.preventDefault();
+                loader.style.display = 'flex';
+                // 使用 target="_top" 確保在最外層開啟
                 window.location.href = `${GAS_WEB_APP_URL}?unit=${encodeURIComponent(school)}`;
             };
             container.appendChild(btn);
