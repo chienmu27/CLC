@@ -5,87 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>115年度全國語文競賽－臺東縣分區賽</title>
     <style>
-        body {
-            font-family: "Microsoft JhengHei", sans-serif;
-            background-color: #f4f7f6;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 30px;
-            text-shadow: 1px 1px 2px #ccc;
-        }
-        .container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            max-width: 800px;
-            width: 100%;
-        }
-        @media (max-width: 600px) {
-            .container { grid-template-columns: repeat(1, 1fr); }
-        }
-        .school-btn {
-            background-color: #ffffff;
-            border: 2px solid #3498db;
-            color: #3498db;
-            padding: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .school-btn:hover {
-            background-color: #3498db;
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-        }
-        .footer {
-            margin-top: 50px;
-            font-size: 14px;
-            color: #7f8c8d;
-        }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        h1 { color: #2c3e50; margin-bottom: 30px; text-align: center; }
+        .container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 800px; width: 100%; }
+        @media (max-width: 600px) { .container { grid-template-columns: repeat(1, 1fr); } }
+        .school-btn { background-color: #ffffff; border: 2px solid #3498db; color: #3498db; padding: 20px; font-size: 18px; font-weight: bold; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .school-btn:hover { background-color: #3498db; color: white; transform: translateY(-3px); }
+        #loading { display: none; margin-top: 20px; color: #e67e22; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <h1>115年度全國語文競賽－臺東縣分區賽</h1>
 
-    <div class="container" id="buttonGrid">
-        <!-- 按鈕由 JavaScript 生成 -->
-    </div>
-
-    <div class="footer">
-        登入說明：點擊單位後，系統將自動比對您的 Google 瀏覽器帳號。
-    </div>
+    <div class="container" id="buttonGrid"></div>
+    <div id="loading">正在驗證身份，請稍候...</div>
 
     <script>
-        // 請將下方的 URL 替換為您在 GAS 部署後取得的「網頁應用程式 URL」
+        // 請務必更新為您「新部署」後的網址
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
 
-        const schools = [
-            "三和國小", "大坡國小", "成功國小",
-            "尚武國小", "岩灣國小", "朗島國小",
-            "鹿野國小", "綠島國小", "豐年國小"
-        ];
-
+        const schools = ["三和國小", "大坡國小", "成功國小", "尚武國小", "岩灣國小", "朗島國小", "鹿野國小", "綠島國小", "豐年國小"];
         const container = document.getElementById('buttonGrid');
+        const loader = document.getElementById('loading');
 
         schools.forEach(school => {
             const btn = document.createElement('div');
             btn.className = 'school-btn';
             btn.innerText = school;
             btn.onclick = () => {
-                // 跳轉至 GAS 進行權限比對，並傳遞單位名稱
-                const targetUrl = `${GAS_WEB_APP_URL}?unit=${encodeURIComponent(school)}`;
-                window.location.href = targetUrl;
+                loader.style.display = 'block';
+                container.style.opacity = '0.5';
+                container.style.pointerEvents = 'none';
+                window.location.href = `${GAS_WEB_APP_URL}?unit=${encodeURIComponent(school)}`;
             };
             container.appendChild(btn);
         });
