@@ -4,46 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>115年度全國語文競賽－臺東縣分區賽</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; font-family: "Microsoft JhengHei", sans-serif; }
-        .container { max-width: 800px; margin-top: 50px; }
-        .header-title { color: #003366; margin-bottom: 30px; text-align: center; font-weight: bold; }
-        .btn-custom { margin: 10px; height: 100px; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        .btn-custom:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .footer-note { font-size: 0.9rem; color: #666; text-align: center; margin-top: 30px; }
+        body {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            max-width: 800px;
+            width: 100%;
+        }
+        .school-btn {
+            background-color: #ffffff;
+            border: 2px solid #3498db;
+            color: #3498db;
+            padding: 15px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .school-btn:hover {
+            background-color: #3498db;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1 class="header-title">115年度全國語文競賽－臺東縣分區賽</h1>
-    <p class="text-center mb-4">請選擇所屬單位，系統將進行 Google 帳號身份驗證</p>
-    
-    <div class="row g-3">
-        <!-- 9個單位按鈕 -->
-        <script>
-            const units = ["三和國小", "大坡國小", "成功國小", "尚武國小", "岩灣國小", "朗島國小", "鹿野國小", "綠島國小", "豐年國小"];
-            const gasUrl = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec"; // 這裡填入你的 GAS 網址
+    <h1>115年度全國語文競賽－臺東縣分區賽</h1>
 
-            units.forEach(unit => {
-                document.write(`
-                    <div class="col-md-4 col-sm-6">
-                        <a href="${gasUrl}?unit=${encodeURIComponent(unit)}" target="_top" class="btn btn-outline-primary btn-custom w-100">
-                            ${unit}
-                        </a>
-                    </div>
-                `);
-            });
-        </script>
+    <div class="container">
+        <!-- 9 個單位按鈕 -->
+        <button class="school-btn" onclick="goToVerify('三和國小')">三和國小</button>
+        <button class="school-btn" onclick="goToVerify('大坡國小')">大坡國小</button>
+        <button class="school-btn" onclick="goToVerify('成功國小')">成功國小</button>
+        <button class="school-btn" onclick="goToVerify('尚武國小')">尚武國小</button>
+        <button class="school-btn" onclick="goToVerify('岩灣國小')">岩灣國小</button>
+        <button class="school-btn" onclick="goToVerify('朗島國小')">朗島國小</button>
+        <button class="school-btn" onclick="goToVerify('鹿野國小')">鹿野國小</button>
+        <button class="school-btn" onclick="goToVerify('綠島國小')">綠島國小</button>
+        <button class="school-btn" onclick="goToVerify('豐年國小')">豐年國小</button>
     </div>
 
-    <div class="footer-note">
-        <hr>
-        <p>※ 點擊按鈕後將彈出 Google 登入視窗，請使用報名時登記之信箱登入。</p>
-        <p>※ 管理人員可點擊任一按鈕進行巡檢。</p>
+    <div class="footer">
+        請使用指定的 Google 帳號登入以進入系統
     </div>
-</div>
 
+    <script>
+        // 請將下方的 URL 替換為您在 GAS 部署後取得的「網頁應用程式 URL」
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
+
+        function goToVerify(schoolName) {
+            // 帶參數跳轉到 GAS 進行驗證
+            const target = GAS_WEB_APP_URL + "?school=" + encodeURIComponent(schoolName);
+            window.location.href = target;
+        }
+    </script>
 </body>
 </html>
