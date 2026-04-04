@@ -4,72 +4,95 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>115年度全國語文競賽－臺東縣分區賽</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; }
         h1 { color: #2c3e50; margin-bottom: 30px; }
         .container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 800px; }
-        @media (max-width: 600px) { .container { grid-template-columns: repeat(1, 1fr); } }
-        button {
-            padding: 15px 25px;
-            font-size: 18px;
-            cursor: pointer;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            transition: background 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
+        button { padding: 15px 25px; font-size: 16px; cursor: pointer; background-color: #3498db; color: white; border: none; border-radius: 5px; transition: 0.3s; }
         button:hover { background-color: #2980b9; }
-        button:disabled { background-color: #95a5a6; cursor: not-allowed; }
-        #msg { margin-top: 20px; color: #e74c3c; font-weight: bold; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 2s linear infinite; display: none; margin-top: 20px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #user-info { margin-bottom: 20px; font-weight: bold; color: #e67e22; }
+        .loading { display: none; color: #7f8c8d; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <h1>115年度全國語文競賽－臺東縣分區賽</h1>
-    
-    <div class="container" id="buttonGroup">
+
+    <div id="g_id_onload"
+         data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin" data-type="standard"></div>
+
+    <div id="user-info">請先登入 Google 帳號以啟用功能</div>
+
+    <div class="container" id="unit-buttons" style="display:none;">
         <!-- 9個單位按鈕 -->
-        <button onclick="openSheet('三和國小')">三和國小</button>
-        <button onclick="openSheet('大坡國小')">大坡國小</button>
-        <button onclick="openSheet('成功國小')">成功國小</button>
-        <button onclick="openSheet('尚武國小')">尚武國小</button>
-        <button onclick="openSheet('岩灣國小')">岩灣國小</button>
-        <button onclick="openSheet('朗島國小')">朗島國小</button>
-        <button onclick="openSheet('鹿野國小')">鹿野國小</button>
-        <button onclick="openSheet('綠島國小')')">綠島國小</button>
-        <button onclick="openSheet('豐年國小')">豐年國小</button>
+        <button onclick="checkAccess('三和國小')">三和國小</button>
+        <button onclick="checkAccess('大坡國小')">大坡國小</button>
+        <button onclick="checkAccess('成功國小')">成功國小</button>
+        <button onclick="checkAccess('尚武國小')">尚武國小</button>
+        <button onclick="checkAccess('岩灣國小')">岩灣國小</button>
+        <button onclick="checkAccess('朗島國小')">朗島國小</button>
+        <button onclick="checkAccess('鹿野國小')">鹿野國小</button>
+        <button onclick="checkAccess('綠島國小')">綠島國小</button>
+        <button onclick="checkAccess('豐年國小')">豐年國小</button>
     </div>
 
-    <div class="loader" id="loader"></div>
-    <p id="msg"></p>
+    <p id="status-msg" class="loading">驗證權限中，請稍候...</p>
 
     <script>
-        // 請在此處貼上你從 GAS 部署後獲得的「網頁應用程式 URL」
-        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec';
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
+        let userEmail = "";
 
-        function openSheet(unitName) {
-            const msgEl = document.getElementById('msg');
-            const loader = document.getElementById('loader');
-            msgEl.innerText = "驗證中，請稍候...";
-            loader.style.display = "block";
+        // 解碼 JWT 取得 Email
+        function decodeJwtResponse(token) {
+            let base64Url = token.split('.')[1];
+            let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
 
-            // 呼叫 GAS API
-            const apiUrl = `${GAS_WEB_APP_URL}?unit=${encodeURIComponent(unitName)}`;
+        function handleCredentialResponse(response) {
+            const responsePayload = decodeJwtResponse(response.credential);
+            userEmail = responsePayload.email;
+            document.getElementById("user-info").innerText = "目前登入： " + userEmail;
+            document.getElementById("unit-buttons").style.display = "grid";
+            console.log("登入成功: " + userEmail);
+        }
 
-            // 注意：因為 GAS 設定為「執行身分：存取使用者」，
-            // 瀏覽器會引導使用者進行 Google 登入驗證
-            window.location.href = apiUrl; 
-            
-            /* 
-               備註：
-               直接跳轉至 GAS URL 是最簡單的做法，GAS 會處理登入流程。
-               如果使用者已登入且有權限，GAS 會執行 doGet 並根據邏輯回傳 JSON。
-               若要更美觀，建議 GAS 直接在後端做 Response.redirect(url)。
-            */
+        function checkAccess(unitName) {
+            if (!userEmail) {
+                alert("請先完成 Google 登入");
+                return;
+            }
+
+            document.getElementById("status-msg").style.display = "block";
+
+            fetch(GAS_WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    email: userEmail,
+                    unit: unitName
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("status-msg").style.display = "none";
+                if (data.success) {
+                    window.open(data.url, '_blank');
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(err => {
+                document.getElementById("status-msg").style.display = "none";
+                console.error(err);
+                alert("連線後端發生錯誤");
+            });
         }
     </script>
 </body>
