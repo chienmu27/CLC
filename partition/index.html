@@ -6,70 +6,76 @@
     <title>115年度全國語文競賽－臺東縣分區賽</title>
     <script src="https://js.puter.com/v2/"></script>
     <style>
-        body { font-family: sans-serif; background-color: #f4f7f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
-        h1 { color: #2c3e50; font-size: 1.4rem; margin-bottom: 25px; line-height: 1.5; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #eef2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); width: 90%; max-width: 450px; text-align: center; }
+        h1 { color: #2c3e50; font-size: 1.3rem; margin-bottom: 1.5rem; line-height: 1.4; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         button { 
-            padding: 15px 10px; border: none; border-radius: 6px; 
-            background-color: #3498db; color: white; font-size: 1rem; 
-            cursor: pointer; transition: 0.2s;
+            padding: 15px 5px; border: none; border-radius: 8px; 
+            background-color: #3498db; color: white; font-size: 0.95rem; 
+            cursor: pointer; transition: 0.3s; font-weight: bold;
         }
-        button:hover { background-color: #2980b9; }
-        button:active { transform: scale(0.98); }
-        .user-tag { margin-top: 20px; font-size: 0.85rem; color: #7f8c8d; border-top: 1px solid #eee; padding-top: 15px; }
-        .logout { color: #e74c3c; cursor: pointer; text-decoration: underline; margin-left: 10px; }
-        #loader { display: none; margin-top: 15px; color: #3498db; font-weight: bold; }
+        button:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .user-info { margin-top: 20px; font-size: 0.8rem; color: #7f8c8d; padding: 10px; background: #f9f9f9; border-radius: 5px; }
+        .logout-btn { color: #e74c3c; cursor: pointer; text-decoration: underline; margin-left: 8px; }
+        #loading { display: none; margin: 15px 0; color: #3498db; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="card">
+<div class="container">
     <h1>115年度全國語文競賽<br>臺東縣分區賽成績系統</h1>
     
+    <div id="loading">驗證權限中...</div>
+
     <div class="grid">
-        <button onclick="checkAccess('三和國小')">三和國小</button>
-        <button onclick="checkAccess('大坡國小')">大坡國小</button>
-        <button onclick="checkAccess('成功國小')">成功國小</button>
-        <button onclick="checkAccess('尚武國小')">尚武國小</button>
-        <button onclick="checkAccess('岩灣國小')">岩灣國小</button>
-        <button onclick="checkAccess('朗島國小')">朗島國小</button>
-        <button onclick="checkAccess('鹿野國小')">鹿野國小</button>
-        <button onclick="checkAccess('綠島國小')">綠島國小</button>
-        <button onclick="checkAccess('豐年國小')">豐年國小</button>
+        <button onclick="handleUnit('三和國小')">三和國小</button>
+        <button onclick="handleUnit('大坡國小')">大坡國小</button>
+        <button onclick="handleUnit('成功國小')">成功國小</button>
+        <button onclick="handleUnit('尚武國小')">尚武國小</button>
+        <button onclick="handleUnit('岩灣國小')">岩灣國小</button>
+        <button onclick="handleUnit('朗島國小')">朗島國小</button>
+        <button onclick="handleUnit('鹿野國小')">鹿野國小</button>
+        <button onclick="handleUnit('綠島國小')">綠島國小</button>
+        <button onclick="handleUnit('豐年國小')">豐年國小</button>
     </div>
 
-    <div id="loader">連線驗證中...</div>
-
-    <div id="statusArea" class="user-tag" style="display:none;">
-        <span id="userEmail"></span>
-        <span class="logout" onclick="logout()">登出</span>
+    <div id="userDisplay" class="user-info" style="display:none;">
+        <span id="emailLabel"></span>
+        <span class="logout-btn" onclick="logout()">登出</span>
     </div>
 </div>
 
 <script>
-    // 請替換成您部署後的網址
+    // ！！！請在此填入您的 GAS 網址 ！！！
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
 
-    async function checkAccess(unit) {
-        // 1. 檢查 Puter 登入狀態
+    async function handleUnit(unitName) {
+        // 1. 確認登入
         if (!puter.auth.isSignedIn()) {
             await puter.auth.signIn();
         }
 
         const user = await puter.auth.getUser();
-        showUser(user.email);
         
-        const loader = document.getElementById('loader');
-        loader.style.display = "block";
+        // 強制檢查 Email
+        if (!user || !user.email) {
+            alert("無法取得您的 Email，請嘗試登出後重新登入，並確保已授權相關權限。");
+            return;
+        }
+
+        showUser(user.email);
+        const loading = document.getElementById('loading');
+        loading.style.display = "block";
 
         try {
-            // 2. 傳送至 GAS 驗證
+            // 2. 呼叫後端驗證 (改用標準 POST)
             const response = await fetch(GAS_URL, {
                 method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // GAS 處理 JSON 建議用 text/plain 避免 CORS 預檢失敗
                 body: JSON.stringify({
                     email: user.email,
-                    unit: unit
+                    unit: unitName
                 })
             });
 
@@ -80,17 +86,17 @@
             } else {
                 alert(result.message);
             }
-        } catch (e) {
-            alert("系統連線失敗，請稍後再試。");
-            console.error(e);
+        } catch (error) {
+            alert("連線到伺服器時發生錯誤，請稍後再試。");
+            console.error("Fetch Error:", error);
         } finally {
-            loader.style.display = "none";
+            loading.style.display = "none";
         }
     }
 
     function showUser(email) {
-        document.getElementById('statusArea').style.display = "block";
-        document.getElementById('userEmail').innerText = "登入中: " + email;
+        document.getElementById('userDisplay').style.display = "block";
+        document.getElementById('emailLabel').innerText = "登入帳號: " + email;
     }
 
     function logout() {
@@ -98,11 +104,11 @@
         location.reload();
     }
 
-    // 初始化頁面
+    // 頁面載入時檢查登入狀態
     puter.ui.onReady(async () => {
         if (puter.auth.isSignedIn()) {
             const user = await puter.auth.getUser();
-            showUser(user.email);
+            if (user && user.email) showUser(user.email);
         }
     });
 </script>
