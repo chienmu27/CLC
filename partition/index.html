@@ -6,151 +6,143 @@
     <title>115年度全國語文競賽－臺東縣分區賽</title>
     <script src="https://js.puter.com/v2/"></script>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f4f8; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 90%; max-width: 480px; text-align: center; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f1f5f9; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 480px; text-align: center; }
         
-        .status-header { 
-            background: #f1f5f9; border-radius: 8px; padding: 12px; margin-bottom: 25px; 
-            font-size: 0.85rem; color: #475569; display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid #e2e8f0;
+        /* 狀態面板 */
+        .auth-card { 
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 20px; 
+            font-size: 0.9rem; color: #475569; display: flex; flex-direction: column; gap: 10px;
         }
-        .btn-switch { background: #64748b; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
-        .btn-switch:hover { background: #334155; }
-
-        h1 { color: #1e293b; font-size: 1.4rem; margin: 0 0 20px 0; border-bottom: 3px solid #3b82f6; padding-bottom: 12px; line-height: 1.4; }
+        .user-email { font-weight: bold; color: #0f172a; word-break: break-all; }
+        .btn-logout { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        
+        h1 { color: #1e293b; font-size: 1.4rem; margin: 0 0 20px 0; border-bottom: 4px solid #3b82f6; padding-bottom: 15px; line-height: 1.4; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .school-btn { 
-            padding: 18px 5px; border: none; border-radius: 8px; 
-            background-color: #3b82f6; color: white; font-size: 1rem; 
+            padding: 20px 5px; border: none; border-radius: 10px; 
+            background-color: #3b82f6; color: white; font-size: 1.05rem; 
             cursor: pointer; transition: 0.2s; font-weight: bold;
         }
-        .school-btn:hover { background-color: #2563eb; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
-        .school-btn:active { transform: scale(0.96); }
+        .school-btn:hover { background-color: #2563eb; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); }
 
-        #loading { display: none; margin: 15px 0; color: #3b82f6; font-weight: bold; font-size: 0.9rem; }
-        .footer { margin-top: 25px; font-size: 0.75rem; color: #64748b; background: #fffbeb; padding: 10px; border-radius: 6px; border: 1px solid #fde68a; }
+        #msg { padding: 15px; border-radius: 8px; margin-top: 15px; display: none; font-weight: bold; font-size: 0.9rem; }
+        .loading-msg { background: #dbeafe; color: #1e40af; }
+        .error-msg { background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; }
+
+        .hint { margin-top: 25px; font-size: 0.8rem; color: #64748b; background: #fffbeb; padding: 15px; border-radius: 10px; border: 1px solid #fef3c7; text-align: left; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- 帳號狀態面板 -->
-    <div id="authPanel" class="status-header" style="display:none;">
-        <span id="userEmail">檢查帳號中...</span>
-        <button class="btn-switch" onclick="switchAccount()">切換帳號</button>
+    <!-- 帳號顯示與登出按鈕 -->
+    <div id="authPanel" class="auth-card" style="display:none;">
+        <div>登入帳號：<span id="displayEmail" class="user-email">讀取中...</span></div>
+        <button class="btn-logout" onclick="forceLogout()">登出並清除緩存 (切換帳號)</button>
     </div>
 
     <h1>115年度全國語文競賽<br>臺東縣分區賽成績系統</h1>
     
-    <div id="loading">🚀 正在連線驗證，請稍候...</div>
+    <div id="msg"></div>
 
     <div class="grid">
-        <button class="school-btn" onclick="openLink('三和國小')">三和國小</button>
-        <button class="school-btn" onclick="openLink('大坡國小')">大坡國小</button>
-        <button class="school-btn" onclick="openLink('成功國小')">成功國小</button>
-        <button class="school-btn" onclick="openLink('尚武國小')">尚武國小</button>
-        <button class="school-btn" onclick="openLink('岩灣國小')">岩灣國小</button>
-        <button class="school-btn" onclick="openLink('朗島國小')">朗島國小</button>
-        <button class="school-btn" onclick="openLink('鹿野國小')">鹿野國小</button>
-        <button class="school-btn" onclick="openLink('綠島國小')">綠島國小</button>
-        <button class="school-btn" onclick="openLink('豐年國小')">豐年國小</button>
+        <button class="school-btn" onclick="checkPermission('三和國小')">三和國小</button>
+        <button class="school-btn" onclick="checkPermission('大坡國小')">大坡國小</button>
+        <button class="school-btn" onclick="checkPermission('成功國小')">成功國小</button>
+        <button class="school-btn" onclick="checkPermission('尚武國小')">尚武國小</button>
+        <button class="school-btn" onclick="checkPermission('岩灣國小')">岩灣國小</button>
+        <button class="school-btn" onclick="checkPermission('朗島國小')">朗島國小</button>
+        <button class="school-btn" onclick="checkPermission('鹿野國小')">鹿野國小</button>
+        <button class="school-btn" onclick="checkPermission('綠島國小')">綠島國小</button>
+        <button class="school-btn" onclick="checkPermission('豐年國小')">豐年國小</button>
     </div>
 
-    <div id="hintBox" class="footer" style="display:none;">
-        ⚠️ <b>注意：</b>若無法開啟，請點擊「切換帳號」，並在 Google 授權視窗中<b>務必勾選</b>「查看您的主要電子郵件地址」。
+    <div class="hint" id="errorHint" style="display:none;">
+        <b>💡 解決「無法獲取 Email」的方法：</b><br>
+        1. 點擊上方的「登出並清除緩存」按鈕。<br>
+        2. 重新點擊學校按鈕，在跳出的 Google 視窗中，<b>務必勾選</b>「查看您的主要電子郵件地址」。
     </div>
 </div>
 
 <script>
-    // ！！！請將下方網址改為您部署後的最新 GAS 網址 ！！！
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
 
-    /**
-     * 主要開啟邏輯
-     */
-    async function openLink(unitName) {
-        setLoading(true);
+    async function checkPermission(school) {
+        showMsg("正在檢查權限...", "loading-msg");
+        
         try {
-            // 1. 如果沒登入，跳出登入視窗
+            // 1. 強制檢查登入與獲取 User 資料
             if (!puter.auth.isSignedIn()) {
                 await puter.auth.signIn();
             }
 
             let user = await puter.auth.getUser();
 
-            // 2. 解決 Email 缺失的核心機制
-            // 如果 user 存在但 email 為空，代表授權不全或緩存損壞，強制登出重來
+            // 2. 解決問題核心：如果登入但沒有 Email
             if (!user || !user.email) {
-                console.warn("Email 授權缺失，強制重置狀態...");
-                await puter.auth.signOut();
-                alert("為了安全性與權限驗證，請重新登入 Google 並勾選「提供電子郵件地址」授權。");
+                console.warn("偵測到授權不足，嘗試強制重置...");
+                await puter.auth.signOut(); // 登出舊 Session
+                document.getElementById('errorHint').style.display = "block";
+                showMsg("錯誤：無法獲取 Email。請重新登入並「勾選」信箱授權。", "error-msg");
+                
+                // 再次嘗試登入
                 await puter.auth.signIn();
                 user = await puter.auth.getUser();
             }
 
-            // 最終防護：如果還是拿不到 Email
+            // 如果還是拿不到 Email
             if (!user || !user.email) {
-                document.getElementById('hintBox').style.display = "block";
-                alert("錯誤：系統無法獲取您的 Email。\n請點擊上方「切換帳號」按鈕重試。");
-                setLoading(false);
+                showMsg("授權失敗。請點擊登出按鈕清除緩存後重試。", "error-msg");
                 return;
             }
 
-            updateAuthUI(user.email);
+            updateUI(user.email);
 
-            // 3. 向後端發送請求
+            // 3. 呼叫 GAS 後端
             const response = await fetch(GAS_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ email: user.email, unit: unitName })
+                body: JSON.stringify({ email: user.email, unit: school })
             });
 
             const result = await response.json();
 
             if (result.status === "success") {
                 window.open(result.url, '_blank');
+                showMsg("驗證通過，已開啟試算表。", "loading-msg");
             } else {
-                alert(result.message);
+                showMsg(result.message, "error-msg");
             }
 
-        } catch (err) {
-            console.error(err);
-            alert("伺服器連線失敗，請檢查網路或重新整理頁面。");
-        } finally {
-            setLoading(false);
+        } catch (e) {
+            showMsg("系統連線異常，請檢查網路。", "error-msg");
         }
     }
 
-    /**
-     * 切換帳號功能：徹底登出並刷新頁面
-     */
-    async function switchAccount() {
-        if (confirm("確定要登出並選擇其他 Google 帳號嗎？")) {
-            await puter.auth.signOut();
-            location.reload(); 
-        }
+    async function forceLogout() {
+        await puter.auth.signOut();
+        localStorage.clear(); // 徹底清除瀏覽器快取
+        location.reload();
     }
 
-    function updateAuthUI(email) {
+    function updateUI(email) {
         document.getElementById('authPanel').style.display = "flex";
-        document.getElementById('userEmail').innerText = "帳號: " + email;
-        document.getElementById('hintBox').style.display = "none";
+        document.getElementById('displayEmail').innerText = email;
+        document.getElementById('errorHint').style.display = "none";
     }
 
-    function setLoading(show) {
-        document.getElementById('loading').style.display = show ? "block" : "none";
+    function showMsg(txt, className) {
+        const m = document.getElementById('msg');
+        m.style.display = "block";
+        m.innerText = txt;
+        m.className = className;
     }
 
-    // 啟動自動偵測
     puter.ui.onReady(async () => {
         if (puter.auth.isSignedIn()) {
             const user = await puter.auth.getUser();
-            if (user && user.email) {
-                updateAuthUI(user.email);
-            } else {
-                // 如果登入了卻沒 email，代表快取有問題，隱藏 UI
-                document.getElementById('authPanel').style.display = "none";
-            }
+            if (user && user.email) updateUI(user.email);
         }
     });
 </script>
