@@ -4,73 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>115年度全國語文競賽－臺東縣分區賽</title>
-    <!-- 引入 Puter.js -->
     <script src="https://js.puter.com/v2/"></script>
     <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --danger: #e74c3c;
+        }
         body {
             font-family: "Microsoft JhengHei", sans-serif;
-            background-color: #f0f4f8;
+            background-color: #f4f7f6;
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
         }
-        .container {
+        .card {
             background: white;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
             width: 90%;
-            max-width: 500px;
+            max-width: 550px;
             text-align: center;
         }
-        h1 {
-            color: #2c3e50;
-            font-size: 1.5rem;
+        .header {
             margin-bottom: 25px;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 15px;
         }
-        .unit-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        h1 { color: var(--primary); font-size: 1.4rem; margin: 0; }
+        
+        .user-status {
+            background: #eee;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .unit-btn {
-            padding: 15px 10px;
-            background-color: #ffffff;
-            border: 2px solid #3498db;
-            color: #3498db;
-            border-radius: 8px;
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.75rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .btn-school {
+            padding: 15px 5px;
+            background: white;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            border-radius: 8px;
             font-weight: bold;
-            transition: all 0.3s;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.95rem;
         }
-        .unit-btn:hover {
-            background-color: #3498db;
+        .btn-school:hover {
+            background: var(--accent);
             color: white;
-            transform: translateY(-2px);
         }
-        /* 管理員特殊色 */
-        .admin-btn {
-            grid-column: span 2;
-            background-color: #e67e22;
-            border-color: #e67e22;
-            color: white;
-            margin-top: 10px;
-        }
-        .admin-btn:hover {
-            background-color: #d35400;
-        }
-        #status-msg {
+
+        #msg {
             margin-top: 20px;
-            color: #e74c3c;
+            padding: 10px;
+            border-radius: 5px;
+            min-height: 20px;
             font-weight: bold;
-            min-height: 1.2em;
         }
-        .loading-overlay {
+        .error { color: var(--danger); background: #fdeaea; }
+        .success { color: #27ae60; background: #eafaf1; }
+
+        .loading-mask {
             position: fixed;
             top:0; left:0; width:100%; height:100%;
             background: rgba(255,255,255,0.8);
@@ -84,81 +101,106 @@
 </head>
 <body>
 
-<div id="loading" class="loading-overlay">
-    <div>驗證中，請稍候...</div>
+<div id="loading" class="loading-mask">
+    <div style="font-size: 1.2rem; font-weight: bold;">正在處理驗證，請在彈出視窗登入...</div>
 </div>
 
-<div class="container">
-    <h1>115年度全國語文競賽－臺東縣分區賽</h1>
-    <div class="unit-grid">
-        <!-- 9 個單位按鈕 -->
-        <button class="unit-btn" onclick="handleLogin('三和國小')">三和國小</button>
-        <button class="unit-btn" onclick="handleLogin('大坡國小')">大坡國小</button>
-        <button class="unit-btn" onclick="handleLogin('成功國小')">成功國小</button>
-        <button class="unit-btn" onclick="handleLogin('尚武國小')">尚武國小</button>
-        <button class="unit-btn" onclick="handleLogin('岩灣國小')">岩灣國小</button>
-        <button class="unit-btn" onclick="handleLogin('朗島國小')">朗島國小</button>
-        <button class="unit-btn" onclick="handleLogin('鹿野國小')">鹿野國小</button>
-        <button class="unit-btn" onclick="handleLogin('綠島國小')">綠島國小</button>
-        <button class="unit-btn" onclick="handleLogin('豐年國小')">豐年國小</button>
+<div class="card">
+    <div class="header">
+        <h1>115年度全國語文競賽－臺東縣分區賽</h1>
     </div>
-    
-    <div id="status-msg"></div>
-    
-    <div style="margin-top: 30px; font-size: 0.8rem; color: #7f8c8d;">
-        請點選所屬單位並使用 Google 帳號登入驗證
+
+    <div class="user-status" id="userBox">
+        <span id="userInfo">尚未登入</span>
+        <button class="logout-btn" onclick="logout()">登出帳號</button>
     </div>
+
+    <div class="grid">
+        <button class="btn-school" onclick="startFlow('三和國小')">三和國小</button>
+        <button class="btn-school" onclick="startFlow('大坡國小')">大坡國小</button>
+        <button class="btn-school" onclick="startFlow('成功國小')">成功國小</button>
+        <button class="btn-school" onclick="startFlow('尚武國小')">尚武國小</button>
+        <button class="btn-school" onclick="startFlow('岩灣國小')">岩灣國小</button>
+        <button class="btn-school" onclick="startFlow('朗島國小')">朗島國小</button>
+        <button class="btn-school" onclick="startFlow('鹿野國小')">鹿野國小</button>
+        <button class="btn-school" onclick="startFlow('綠島國小')">綠島國小</button>
+        <button class="btn-school" onclick="startFlow('豐年國小')">豐年國小</button>
+    </div>
+
+    <div id="msg"></div>
 </div>
 
 <script>
-    // 請將此處替換為您部署完 GAS 後取得的 Web App 網址
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec"; 
+    // 請替換為您部署後獲取的 GAS 網址
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec"; 
 
-    async function handleLogin(unitName) {
-        const msgDiv = document.getElementById('status-msg');
+    async function updateUserInfo() {
+        const info = document.getElementById('userInfo');
+        if (puter.auth.isSignedIn()) {
+            const user = await puter.auth.getUser();
+            info.innerText = "目前登入: " + user.email;
+        } else {
+            info.innerText = "尚未登入";
+        }
+    }
+
+    async function logout() {
+        await puter.auth.signOut();
+        updateUserInfo();
+        showMsg("已成功登出", "success");
+    }
+
+    async function startFlow(schoolName) {
+        const msgBox = document.getElementById('msg');
         const loading = document.getElementById('loading');
-        msgDiv.innerText = "";
+        msgBox.className = "";
+        msgBox.innerText = "啟動驗證中...";
+        loading.style.display = "flex";
 
         try {
-            // 1. 使用 Puter.js 呼叫 Google 登入視窗
-            if (!puter.auth.isSignedIn()) {
-                await puter.auth.signIn();
+            // 為了達成「每次擊點都要出現驗證視窗」，我們先登出再重新登入
+            if (puter.auth.isSignedIn()) {
+                await puter.auth.signOut();
             }
             
-            const user = await puter.auth.getUser();
-            const email = user.email;
+            // 呼叫 Puter 登入視窗
+            const user = await puter.auth.signIn();
+            updateUserInfo();
 
-            loading.style.display = "flex";
-
-            // 2. 向 GAS 發送驗證請求
-            const response = await fetch(GAS_API_URL, {
+            // 向後端 GAS 請求 URL
+            const resp = await fetch(GAS_URL, {
                 method: 'POST',
                 body: JSON.stringify({
-                    email: email,
-                    targetUnit: unitName
+                    email: user.email,
+                    targetUnit: schoolName
                 })
             });
 
-            const result = await response.json();
+            const result = await resp.json();
 
             if (result.status === "success") {
-                msgDiv.style.color = "green";
-                msgDiv.innerText = "驗證成功！正在開啟試算表...";
-                // 3. 開啟對應的試算表網址
+                showMsg("驗證成功，正在開啟連結...", "success");
                 window.open(result.url, '_blank');
             } else {
-                msgDiv.style.color = "red";
-                msgDiv.innerText = result.message;
+                showMsg(result.message, "error");
             }
 
-        } catch (error) {
-            console.error(error);
-            msgDiv.style.color = "red";
-            msgDiv.innerText = "登入或驗證過程出錯，請重試。";
+        } catch (err) {
+            console.error(err);
+            showMsg("登入取消或發生錯誤", "error");
         } finally {
             loading.style.display = "none";
         }
     }
+
+    function showMsg(text, type) {
+        const msgBox = document.getElementById('msg');
+        msgBox.innerText = text;
+        msgBox.className = type;
+    }
+
+    // 初始化狀態
+    updateUserInfo();
 </script>
 
 </body>
