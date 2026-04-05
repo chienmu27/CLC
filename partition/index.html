@@ -4,102 +4,280 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>115年度全國語文競賽－臺東縣分區賽</title>
-    <!-- 引入 Puter.js 用於顯示登入狀態 -->
+    <!-- 引入 Puter.js -->
     <script src="https://js.puter.com/v2/"></script>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f8fafc; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 90%; max-width: 480px; text-align: center; }
-        
-        /* 狀態列：僅供參考，不強制 */
-        .auth-status { 
-            background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 25px; 
-            font-size: 0.85rem; color: #64748b; display: flex; justify-content: space-between; align-items: center;
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #1e293b;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
         }
-        .btn-switch { background: #94a3b8; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
-        .btn-switch:hover { background: #64748b; }
 
-        h1 { color: #1e293b; font-size: 1.5rem; margin: 0 0 25px 0; border-bottom: 4px solid #3b82f6; padding-bottom: 15px; line-height: 1.4; }
-        
-        /* 按鈕格線 */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .school-btn { 
-            padding: 20px 5px; border: none; border-radius: 10px; 
-            background-color: #3b82f6; color: white; font-size: 1.05rem; 
-            cursor: pointer; transition: 0.2s; font-weight: bold;
+        body {
+            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
-        .school-btn:hover { background-color: #2563eb; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3); }
-        .school-btn:active { transform: scale(0.95); }
 
-        .footer-hint { margin-top: 25px; font-size: 0.8rem; color: #94a3b8; line-height: 1.6; }
+        .container {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 550px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        /* 標題與分頁按鈕 */
+        h1 {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 0 0 20px 0;
+            line-height: 1.4;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #64748b;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        /* 帳號狀態列 */
+        .auth-status {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #64748b;
+        }
+
+        /* 成績系統分頁內容 */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .school-btn {
+            padding: 18px 5px;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: bold;
+        }
+
+        .school-btn:hover {
+            background-color: #2563eb;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        /* 說明分頁內容 */
+        .info-content {
+            text-align: left;
+            line-height: 1.8;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+
+        .info-content h2 {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            border-left: 4px solid var(--primary-color);
+            padding-left: 10px;
+            margin-top: 20px;
+        }
+
+        .info-content ul {
+            padding-left: 20px;
+        }
+
+        /* 隱藏內容 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 頁尾 */
+        .footer {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            line-height: 1.6;
+            width: 100%;
+        }
+
+        .btn-switch {
+            background: #cbd5e1;
+            color: #475569;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- 帳號狀態列 (選用功能) -->
+    <h1>115年度全國語文競賽<br>臺東縣分區賽成績系統</h1>
+
+    <!-- 帳號顯示 (選用) -->
     <div id="authPanel" class="auth-status" style="display:none;">
         <span id="userEmail">檢查帳號中...</span>
-        <button class="btn-switch" onclick="switchAccount()">切換/登出帳號</button>
+        <button class="btn-switch" onclick="switchAccount()">登出/切換</button>
     </div>
 
-    <h1>115年度全國語文競賽<br>臺東縣分區賽成績系統</h1>
-    
-    <div class="grid">
-        <button class="school-btn" onclick="openSheet('三和國小')">三和國小</button>
-        <button class="school-btn" onclick="openSheet('大坡國小')">大坡國小</button>
-        <button class="school-btn" onclick="openSheet('成功國小')">成功國小</button>
-        <button class="school-btn" onclick="openSheet('尚武國小')">尚武國小</button>
-        <button class="school-btn" onclick="openSheet('岩灣國小')">岩灣國小</button>
-        <button class="school-btn" onclick="openSheet('朗島國小')">朗島國小</button>
-        <button class="school-btn" onclick="openSheet('鹿野國小')">鹿野國小</button>
-        <button class="school-btn" onclick="openSheet('綠島國小')">綠島國小</button>
-        <button class="school-btn" onclick="openSheet('豐年國小')">豐年國小</button>
+    <!-- 分頁標籤 -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('system')">成績系統</button>
+        <button class="tab-btn" onclick="showTab('license')">說明與聲明</button>
     </div>
 
-    <div class="footer-hint">
-        點擊按鈕將直接開啟試算表。<br>
-        權限由 Google 系統自動判定，若無法編輯請確認是否已登入正確帳號。
+    <!-- 分頁一：成績系統 -->
+    <div id="tab-system">
+        <div class="grid">
+            <button class="school-btn" onclick="openSheet('三和國小')">三和國小</button>
+            <button class="school-btn" onclick="openSheet('大坡國小')">大坡國小</button>
+            <button class="school-btn" onclick="openSheet('成功國小')">成功國小</button>
+            <button class="school-btn" onclick="openSheet('尚武國小')">尚武國小</button>
+            <button class="school-btn" onclick="openSheet('岩灣國小')">岩灣國小</button>
+            <button class="school-btn" onclick="openSheet('朗島國小')">朗島國小</button>
+            <button class="school-btn" onclick="openSheet('鹿野國小')">鹿野國小</button>
+            <button class="school-btn" onclick="openSheet('綠島國小')">綠島國小</button>
+            <button class="school-btn" onclick="openSheet('豐年國小')">豐年國小</button>
+        </div>
+        <p style="text-align:center; font-size: 0.8rem; color: #94a3b8; margin-top: 20px;">
+            ※ 點擊按鈕直接開啟試算表，權限由 Google 判定。
+        </p>
+    </div>
+
+    <!-- 分頁二：說明與權限 -->
+    <div id="tab-license" class="hidden">
+        <div class="info-content">
+            <b>📌 國語文競賽成績系統 使用說明與版權聲明</b>
+            
+            <h2>一、試算表用途</h2>
+            <p>本試算表為「國語文競賽成績系統」，提供競賽成績登錄、統計與查詢使用。</p>
+
+            <h2>二、設計與開發</h2>
+            <p>本系統由 <b>戴千木老師（東海國小）</b> 設計與開發。</p>
+
+            <h2>三、使用規範</h2>
+            <p>本系統提供臺東縣語文競賽使用。使用者可依需求進行調整與應用，但請遵守以下規範：</p>
+            <ul>
+                <li>不得移除或修改本版權與設計聲明</li>
+                <li>不得用於商業用途</li>
+            </ul>
+
+            <h2>四、版本資訊</h2>
+            <p>
+                版本：專案 2.0 版<br>
+                更新日期：2026 年 3 月
+            </p>
+            
+            <p style="text-align: center; margin-top: 30px; font-weight: bold; color: var(--primary-color);">
+                📌 本系統持續優化中，歡迎提供建議。
+            </p>
+        </div>
     </div>
 </div>
 
+<div class="footer">
+    Powered by Google Gemini (via Puter.js) <br>
+    © 2026 chienmu.tai 保留所有權利
+</div>
+
 <script>
-    // 直接定義連結清單，不再經由後端轉發，確保點擊即開
+    // 連結清單
     const SHEET_LINKS = {
         "三和國小": "https://docs.google.com/spreadsheets/d/1lbGi87DtoPicMC-K-wOPBQevv6VHZJm4pPRxUhnJQEs/edit?usp=drive_link",
-        "大坡國小": "https://docs.google.com/spreadsheets/d/1Cb2pdQI7NHpuk9-3yz_Fk3xuFEr0uljEitLvadz3xAA/edit?usp=drive_link",
-        "成功國小": "https://docs.google.com/spreadsheets/d/1yW-4QpBimw0lQs3ZB83EpwC39TvRrvjhec-RxIk7ZGg/edit?usp=drive_link",
-        "尚武國小": "https://docs.google.com/spreadsheets/d/1UW5MNTJhj8SODqJtsy-I991BolDR6AzW4FW1E0HcxDs/edit?usp=drive_link",
-        "岩灣國小": "https://docs.google.com/spreadsheets/d/1f4r6spcNcr5LvRJOv2026jETYs9zDR_E-Tr6vau9ofM/edit?usp=drive_link",
-        "朗島國小": "https://docs.google.com/spreadsheets/d/1HGZREJnorH_Y8YVdYwPrRM6Wm5GemUdD-Xl2dcJTWXI/edit?usp=drive_link",
-        "鹿野國小": "https://docs.google.com/spreadsheets/d/1Jxduqvtx52LImWkZNdVx3-SqKN2VW-TT_frT-2i-2Xs/edit?usp=drive_link",
-        "綠島國小": "https://docs.google.com/spreadsheets/d/1jyVf9300HSWLZ_uTFBQEJMO-7FwPdxd7YgAqgyuJeC8/edit?usp=drive_link",
-        "豐年國小": "https://docs.google.com/spreadsheets/d/1WcvdhMJ9NM_TOPt-KZJD_q5bVt4kSa5X5svbAdMDsqw/edit?usp=drive_link"
-       
+        "大坡國小": "https://docs.google.com/spreadsheets/d/1WcvdhMJ9NM_TOPt-KZJD_q5bVt4kSa5X5svbAdMDsqw/edit?usp=drive_link",
+        "成功國小": "https://docs.google.com/spreadsheets/d/1Cb2pdQI7NHpuk9-3yz_Fk3xuFEr0uljEitLvadz3xAA/edit?usp=drive_link",
+        "尚武國小": "https://docs.google.com/spreadsheets/d/1yW-4QpBimw0lQs3ZB83EpwC39TvRrvjhec-RxIk7ZGg/edit?usp=drive_link",
+        "岩灣國小": "https://docs.google.com/spreadsheets/d/1UW5MNTJhj8SODqJtsy-I991BolDR6AzW4FW1E0HcxDs/edit?usp=drive_link",
+        "朗島國小": "https://docs.google.com/spreadsheets/d/1f4r6spcNcr5LvRJOv2026jETYs9zDR_E-Tr6vau9ofM/edit?usp=drive_link",
+        "鹿野國小": "https://docs.google.com/spreadsheets/d/1HGZREJnorH_Y8YVdYwPrRM6Wm5GemUdD-Xl2dcJTWXI/edit?usp=drive_link",
+        "綠島國小": "https://docs.google.com/spreadsheets/d/1Jxduqvtx52LImWkZNdVx3-SqKN2VW-TT_frT-2i-2Xs/edit?usp=drive_link",
+        "豐年國小": "https://docs.google.com/spreadsheets/d/1jyVf9300HSWLZ_uTFBQEJMO-7FwPdxd7YgAqgyuJeC8/edit?usp=drive_link"
     };
 
     /**
-     * 點擊按鈕直接開啟新視窗
+     * 分頁切換邏輯
+     */
+    function showTab(tabName) {
+        const systemTab = document.getElementById('tab-system');
+        const licenseTab = document.getElementById('tab-license');
+        const btns = document.querySelectorAll('.tab-btn');
+
+        btns.forEach(btn => btn.classList.remove('active'));
+
+        if (tabName === 'system') {
+            systemTab.classList.remove('hidden');
+            licenseTab.classList.add('hidden');
+            btns[0].classList.add('active');
+        } else {
+            systemTab.classList.add('hidden');
+            licenseTab.classList.remove('hidden');
+            btns[1].classList.add('active');
+        }
+    }
+
+    /**
+     * 開啟連結
      */
     function openSheet(schoolName) {
         const url = SHEET_LINKS[schoolName];
         if (url) {
             window.open(url, '_blank');
-        } else {
-            alert("找不到該學校的試算表網址。");
         }
     }
 
     /**
-     * 切換帳號按鈕功能
+     * 身分管理 (Puter.js)
      */
     async function switchAccount() {
         await puter.auth.signOut();
         location.reload();
     }
 
-    /**
-     * 靜默檢查身分 (僅用於顯示)
-     */
     puter.ui.onReady(async () => {
         if (puter.auth.isSignedIn()) {
             try {
@@ -109,16 +287,8 @@
                     document.getElementById('userEmail').innerText = "登入中: " + user.email;
                 }
             } catch (e) {
-                // 如果抓不到 email，我們就靜默不報錯，不顯示狀態列即可
-                console.log("無法獲取電子郵件供顯示，將進入訪客模式。");
+                console.log("身分獲取受限。");
             }
-        } else {
-            // 提供一個登入按鈕給想確認身分的人
-            document.getElementById('authPanel').style.display = "flex";
-            document.getElementById('userEmail').innerText = "尚未登入身分";
-            const btn = document.querySelector('.btn-switch');
-            btn.innerText = "登入 Google";
-            btn.onclick = async () => { await puter.auth.signIn(); location.reload(); };
         }
     });
 </script>
