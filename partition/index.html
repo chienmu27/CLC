@@ -22,6 +22,9 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            /* 修改部分：確保只有超過頁面內容時才出現捲軸，並防止水平捲軸出現 */
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .container {
