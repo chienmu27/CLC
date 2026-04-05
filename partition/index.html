@@ -4,132 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>115年度全國語文競賽－臺東縣分區賽</title>
+    <!-- 引入 Puter.js 用於顯示登入狀態 -->
     <script src="https://js.puter.com/v2/"></script>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f3f4f6; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 480px; text-align: center; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f8fafc; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 90%; max-width: 480px; text-align: center; }
         
-        .auth-status { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 15px; margin-bottom: 25px; font-size: 0.9rem; color: #4b5563; }
-        .btn-reset { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 8px; font-size: 0.75rem; }
+        /* 狀態列：僅供參考，不強制 */
+        .auth-status { 
+            background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 25px; 
+            font-size: 0.85rem; color: #64748b; display: flex; justify-content: space-between; align-items: center;
+        }
+        .btn-switch { background: #94a3b8; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
+        .btn-switch:hover { background: #64748b; }
 
-        h1 { color: #111827; font-size: 1.4rem; margin: 0 0 20px 0; border-bottom: 4px solid #2563eb; padding-bottom: 12px; line-height: 1.4; }
+        h1 { color: #1e293b; font-size: 1.5rem; margin: 0 0 25px 0; border-bottom: 4px solid #3b82f6; padding-bottom: 15px; line-height: 1.4; }
+        
+        /* 按鈕格線 */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .school-btn { 
             padding: 20px 5px; border: none; border-radius: 10px; 
-            background-color: #2563eb; color: white; font-size: 1rem; 
+            background-color: #3b82f6; color: white; font-size: 1.05rem; 
             cursor: pointer; transition: 0.2s; font-weight: bold;
         }
-        .school-btn:hover { background-color: #1d4ed8; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3); }
+        .school-btn:hover { background-color: #2563eb; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3); }
+        .school-btn:active { transform: scale(0.95); }
 
-        #msg { margin-top: 20px; padding: 12px; border-radius: 8px; font-weight: bold; display: none; }
-        .info { background: #eff6ff; color: #1e40af; }
-        .error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-
-        .important { margin-top: 25px; font-size: 0.8rem; color: #b91c1c; background: #fff1f2; padding: 12px; border-radius: 10px; border: 1px solid #fecdd3; }
+        .footer-hint { margin-top: 25px; font-size: 0.8rem; color: #94a3b8; line-height: 1.6; }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- 帳號狀態列 (選用功能) -->
     <div id="authPanel" class="auth-status" style="display:none;">
-        目前帳號：<b id="userEmail">檢查中...</b><br>
-        <button class="btn-reset" onclick="hardLogout()">登出並切換帳號 (解決授權問題)</button>
+        <span id="userEmail">檢查帳號中...</span>
+        <button class="btn-switch" onclick="switchAccount()">切換/登出帳號</button>
     </div>
 
     <h1>115年度全國語文競賽<br>臺東縣分區賽成績系統</h1>
     
-    <div id="msg"></div>
-
     <div class="grid">
-        <button class="school-btn" onclick="goToSheet('三和國小')">三和國小</button>
-        <button class="school-btn" onclick="goToSheet('大坡國小')">大坡國小</button>
-        <button class="school-btn" onclick="goToSheet('成功國小')">成功國小</button>
-        <button class="school-btn" onclick="goToSheet('尚武國小')">尚武國小</button>
-        <button class="school-btn" onclick="goToSheet('岩灣國小')">岩灣國小</button>
-        <button class="school-btn" onclick="goToSheet('朗島國小')">朗島國小</button>
-        <button class="school-btn" onclick="goToSheet('鹿野國小')">鹿野國小</button>
-        <button class="school-btn" onclick="goToSheet('綠島國小')">綠島國小</button>
-        <button class="school-btn" onclick="goToSheet('豐年國小')">豐年國小</button>
+        <button class="school-btn" onclick="openSheet('三和國小')">三和國小</button>
+        <button class="school-btn" onclick="openSheet('大坡國小')">大坡國小</button>
+        <button class="school-btn" onclick="openSheet('成功國小')">成功國小</button>
+        <button class="school-btn" onclick="openSheet('尚武國小')">尚武國小</button>
+        <button class="school-btn" onclick="openSheet('岩灣國小')">岩灣國小</button>
+        <button class="school-btn" onclick="openSheet('朗島國小')">朗島國小</button>
+        <button class="school-btn" onclick="openSheet('鹿野國小')">鹿野國小</button>
+        <button class="school-btn" onclick="openSheet('綠島國小')">綠島國小</button>
+        <button class="school-btn" onclick="openSheet('豐年國小')">豐年國小</button>
     </div>
 
-    <div class="important">
-        <b>💡 登入提示：</b><br>
-        若系統提示「無法獲取 Email」，請點擊上方<b>紅色按鈕</b>重新登入，並務必在 Google 視窗勾選「查看電子郵件地址」。
+    <div class="footer-hint">
+        點擊按鈕將直接開啟試算表。<br>
+        權限由 Google 系統自動判定，若無法編輯請確認是否已登入正確帳號。
     </div>
 </div>
 
 <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
+    // 直接定義連結清單，不再經由後端轉發，確保點擊即開
+    const SHEET_LINKS = {
+        "三和國小": "https://docs.google.com/spreadsheets/d/1lbGi87DtoPicMC-K-wOPBQevv6VHZJm4pPRxUhnJQEs/edit?usp=drive_link",
+        "大坡國小": "https://docs.google.com/spreadsheets/d/1WcvdhMJ9NM_TOPt-KZJD_q5bVt4kSa5X5svbAdMDsqw/edit?usp=drive_link",
+        "成功國小": "https://docs.google.com/spreadsheets/d/1Cb2pdQI7NHpuk9-3yz_Fk3xuFEr0uljEitLvadz3xAA/edit?usp=drive_link",
+        "尚武國小": "https://docs.google.com/spreadsheets/d/1yW-4QpBimw0lQs3ZB83EpwC39TvRrvjhec-RxIk7ZGg/edit?usp=drive_link",
+        "岩灣國小": "https://docs.google.com/spreadsheets/d/1UW5MNTJhj8SODqJtsy-I991BolDR6AzW4FW1E0HcxDs/edit?usp=drive_link",
+        "朗島國小": "https://docs.google.com/spreadsheets/d/1f4r6spcNcr5LvRJOv2026jETYs9zDR_E-Tr6vau9ofM/edit?usp=drive_link",
+        "鹿野國小": "https://docs.google.com/spreadsheets/d/1HGZREJnorH_Y8YVdYwPrRM6Wm5GemUdD-Xl2dcJTWXI/edit?usp=drive_link",
+        "綠島國小": "https://docs.google.com/spreadsheets/d/1Jxduqvtx52LImWkZNdVx3-SqKN2VW-TT_frT-2i-2Xs/edit?usp=drive_link",
+        "豐年國小": "https://docs.google.com/spreadsheets/d/1jyVf9300HSWLZ_uTFBQEJMO-7FwPdxd7YgAqgyuJeC8/edit?usp=drive_link"
+    };
 
-    async function goToSheet(unit) {
-        const msg = document.getElementById('msg');
-        msg.style.display = "block";
-        msg.innerText = "驗證身分中...";
-        msg.className = "info";
-
-        try {
-            // 1. 確保已登入
-            if (!puter.auth.isSignedIn()) {
-                await puter.auth.signIn();
-            }
-
-            let user = await puter.auth.getUser();
-
-            // 2. 自動修正機制：如果登入後沒拿到 Email (常見於未勾選權限)
-            if (!user || !user.email) {
-                console.warn("Email 缺失，自動強制登出重試...");
-                await puter.auth.signOut();
-                alert("【重要授權提示】\n請點擊確定後重新登入，並在 Google 畫面中務必勾選「查看您的主要電子郵件地址」。");
-                await puter.auth.signIn();
-                user = await puter.auth.getUser();
-            }
-
-            if (!user || !user.email) {
-                msg.innerText = "授權失敗：無法獲取您的 Email 地址。";
-                msg.className = "error";
-                return;
-            }
-
-            updateUI(user.email);
-
-            // 3. 呼叫 GAS 獲取網址
-            const response = await fetch(GAS_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ email: user.email, unit: unit })
-            });
-
-            const result = await response.json();
-
-            if (result.status === "success") {
-                msg.style.display = "none";
-                window.open(result.url, '_blank');
-            } else {
-                msg.innerText = result.message;
-                msg.className = "error";
-            }
-
-        } catch (e) {
-            msg.innerText = "網路連線失敗。";
-            msg.className = "error";
+    /**
+     * 點擊按鈕直接開啟新視窗
+     */
+    function openSheet(schoolName) {
+        const url = SHEET_LINKS[schoolName];
+        if (url) {
+            window.open(url, '_blank');
+        } else {
+            alert("找不到該學校的試算表網址。");
         }
     }
 
-    async function hardLogout() {
+    /**
+     * 切換帳號按鈕功能
+     */
+    async function switchAccount() {
         await puter.auth.signOut();
-        localStorage.clear();
         location.reload();
     }
 
-    function updateUI(email) {
-        document.getElementById('authPanel').style.display = "block";
-        document.getElementById('userEmail').innerText = email;
-    }
-
+    /**
+     * 靜默檢查身分 (僅用於顯示)
+     */
     puter.ui.onReady(async () => {
         if (puter.auth.isSignedIn()) {
-            const user = await puter.auth.getUser();
-            if (user && user.email) updateUI(user.email);
+            try {
+                const user = await puter.auth.getUser();
+                if (user && user.email) {
+                    document.getElementById('authPanel').style.display = "flex";
+                    document.getElementById('userEmail').innerText = "登入中: " + user.email;
+                }
+            } catch (e) {
+                // 如果抓不到 email，我們就靜默不報錯，不顯示狀態列即可
+                console.log("無法獲取電子郵件供顯示，將進入訪客模式。");
+            }
+        } else {
+            // 提供一個登入按鈕給想確認身分的人
+            document.getElementById('authPanel').style.display = "flex";
+            document.getElementById('userEmail').innerText = "尚未登入身分";
+            const btn = document.querySelector('.btn-switch');
+            btn.innerText = "登入 Google";
+            btn.onclick = async () => { await puter.auth.signIn(); location.reload(); };
         }
     });
 </script>
