@@ -6,19 +6,19 @@
     <title>115年度全國語文競賽－臺東縣分區賽</title>
     <script src="https://js.puter.com/v2/"></script>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #eef2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); width: 90%; max-width: 450px; text-align: center; }
-        h1 { color: #2c3e50; font-size: 1.3rem; margin-bottom: 1.5rem; line-height: 1.4; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 90%; max-width: 450px; text-align: center; }
+        h1 { color: #1a2a3a; font-size: 1.3rem; margin-bottom: 20px; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         button { 
-            padding: 15px 5px; border: none; border-radius: 8px; 
-            background-color: #3498db; color: white; font-size: 0.95rem; 
-            cursor: pointer; transition: 0.3s; font-weight: bold;
+            padding: 15px 5px; border: none; border-radius: 6px; 
+            background-color: #3498db; color: white; font-size: 1rem; 
+            cursor: pointer; transition: 0.2s; font-weight: bold;
         }
-        button:hover { background-color: #2980b9; transform: translateY(-2px); }
-        .user-info { margin-top: 20px; font-size: 0.8rem; color: #7f8c8d; padding: 10px; background: #f9f9f9; border-radius: 5px; }
-        .logout-btn { color: #e74c3c; cursor: pointer; text-decoration: underline; margin-left: 8px; }
-        #loading { display: none; margin: 15px 0; color: #3498db; font-weight: bold; }
+        button:hover { background-color: #2980b9; }
+        .user-panel { margin-top: 25px; padding: 10px; background: #f8f9fa; border-radius: 8px; font-size: 0.85rem; color: #555; }
+        .logout { color: #d63031; cursor: pointer; text-decoration: underline; margin-left: 10px; }
+        #loading { display: none; font-weight: bold; color: #3498db; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -26,56 +26,54 @@
 <div class="container">
     <h1>115年度全國語文競賽<br>臺東縣分區賽成績系統</h1>
     
-    <div id="loading">驗證權限中...</div>
+    <div id="loading">正在連線驗證...</div>
 
     <div class="grid">
-        <button onclick="handleUnit('三和國小')">三和國小</button>
-        <button onclick="handleUnit('大坡國小')">大坡國小</button>
-        <button onclick="handleUnit('成功國小')">成功國小</button>
-        <button onclick="handleUnit('尚武國小')">尚武國小</button>
-        <button onclick="handleUnit('岩灣國小')">岩灣國小</button>
-        <button onclick="handleUnit('朗島國小')">朗島國小</button>
-        <button onclick="handleUnit('鹿野國小')">鹿野國小</button>
-        <button onclick="handleUnit('綠島國小')">綠島國小</button>
-        <button onclick="handleUnit('豐年國小')">豐年國小</button>
+        <button onclick="accessSchool('三和國小')">三和國小</button>
+        <button onclick="accessSchool('大坡國小')">大坡國小</button>
+        <button onclick="accessSchool('成功國小')">成功國小</button>
+        <button onclick="accessSchool('尚武國小')">尚武國小</button>
+        <button onclick="accessSchool('岩灣國小')">岩灣國小</button>
+        <button onclick="accessSchool('朗島國小')">朗島國小</button>
+        <button onclick="accessSchool('鹿野國小')">鹿野國小</button>
+        <button onclick="accessSchool('綠島國小')">綠島國小</button>
+        <button onclick="accessSchool('豐年國小')">豐年國小</button>
     </div>
 
-    <div id="userDisplay" class="user-info" style="display:none;">
-        <span id="emailLabel"></span>
-        <span class="logout-btn" onclick="logout()">登出</span>
+    <div id="userInfo" class="user-panel" style="display:none;">
+        <span id="displayEmail"></span>
+        <span class="logout" onclick="logout()">登出</span>
     </div>
 </div>
 
 <script>
-    // ！！！請在此填入您的 GAS 網址 ！！！
+    // ！！！請將下方網址改為您部署後的 GAS 網址 ！！！
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
 
-    async function handleUnit(unitName) {
-        // 1. 確認登入
-        if (!puter.auth.isSignedIn()) {
-            await puter.auth.signIn();
-        }
-
-        const user = await puter.auth.getUser();
-        
-        // 強制檢查 Email
-        if (!user || !user.email) {
-            alert("無法取得您的 Email，請嘗試登出後重新登入，並確保已授權相關權限。");
-            return;
-        }
-
-        showUser(user.email);
-        const loading = document.getElementById('loading');
-        loading.style.display = "block";
-
+    async function accessSchool(schoolName) {
         try {
-            // 2. 呼叫後端驗證 (改用標準 POST)
+            // 1. 確保已登入
+            if (!puter.auth.isSignedIn()) {
+                await puter.auth.signIn();
+            }
+
+            // 2. 獲取使用者資料
+            const user = await puter.auth.getUser();
+            if (!user || !user.email) {
+                alert("無法獲取電子郵件地址，請嘗試點擊登出後重新登入。");
+                return;
+            }
+
+            updateUI(user.email);
+            document.getElementById('loading').style.display = "block";
+
+            // 3. 向 GAS 發送請求
             const response = await fetch(GAS_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // GAS 處理 JSON 建議用 text/plain 避免 CORS 預檢失敗
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
                     email: user.email,
-                    unit: unitName
+                    unit: schoolName
                 })
             });
 
@@ -86,17 +84,17 @@
             } else {
                 alert(result.message);
             }
-        } catch (error) {
-            alert("連線到伺服器時發生錯誤，請稍後再試。");
-            console.error("Fetch Error:", error);
+        } catch (err) {
+            console.error(err);
+            alert("系統連線失敗，請檢查網路或 GAS 網址是否正確。");
         } finally {
-            loading.style.display = "none";
+            document.getElementById('loading').style.display = "none";
         }
     }
 
-    function showUser(email) {
-        document.getElementById('userDisplay').style.display = "block";
-        document.getElementById('emailLabel').innerText = "登入帳號: " + email;
+    function updateUI(email) {
+        document.getElementById('userInfo').style.display = "block";
+        document.getElementById('displayEmail').innerText = "登入中: " + email;
     }
 
     function logout() {
@@ -104,11 +102,11 @@
         location.reload();
     }
 
-    // 頁面載入時檢查登入狀態
+    // 頁面開啟時自動偵測狀態
     puter.ui.onReady(async () => {
         if (puter.auth.isSignedIn()) {
             const user = await puter.auth.getUser();
-            if (user && user.email) showUser(user.email);
+            if (user && user.email) updateUI(user.email);
         }
     });
 </script>
