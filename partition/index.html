@@ -5,64 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>115年度全國語文競賽－臺東縣分區賽</title>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        header { background-color: #2c3e50; color: white; width: 100%; padding: 20px 0; text-align: center; margin-bottom: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        h1 { margin: 0; font-size: 24px; }
-        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 1000px; width: 100%; padding: 0 20px; box-sizing: border-box; }
-        .school-btn { background-color: #ffffff; border: 2px solid #3498db; color: #3498db; padding: 25px 15px; font-size: 18px; font-weight: bold; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-decoration: none; }
-        .school-btn:hover { background-color: #3498db; color: white; transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
-        .footer { margin-top: 50px; font-size: 14px; color: #7f8c8d; text-align: center; line-height: 1.6; }
-        #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { font-family: "Microsoft JhengHei", Arial, sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 500px; width: 100%; text-align: center; }
+        h1 { color: #2c3e50; font-size: 24px; margin-bottom: 25px; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { 
+            padding: 15px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px;
+            background-color: #3498db; color: white; transition: background 0.3s;
+        }
+        button:hover { background-color: #2980b9; }
+        .footer { margin-top: 20px; font-size: 12px; color: #7f8c8d; }
     </style>
 </head>
 <body>
 
-    <header>
+    <div class="container">
         <h1>115年度全國語文競賽－臺東縣分區賽</h1>
-    </header>
+        <p>請選擇所屬單位進行登入：</p>
+        
+        <div class="btn-grid">
+            <button onclick="loginTo('三和國小')">三和國小</button>
+            <button onclick="loginTo('大坡國小')">大坡國小</button>
+            <button onclick="loginTo('成功國小')">成功國小</button>
+            <button onclick="loginTo('尚武國小')">尚武國小</button>
+            <button onclick="loginTo('岩灣國小')')">岩灣國小</button>
+            <button onclick="loginTo('朗島國小')">朗島國小</button>
+            <button onclick="loginTo('鹿野國小')">鹿野國小</button>
+            <button onclick="loginTo('綠島國小')">綠島國小</button>
+            <button onclick="loginTo('豐年國小')">豐年國小</button>
+        </div>
 
-    <div class="container" id="buttonGrid">
-        <!-- 按鈕自動生成 -->
-    </div>
-
-    <div id="loading-overlay">
-        <div class="spinner"></div>
-        <div>正在連接驗證系統...</div>
-    </div>
-
-    <div class="footer">
-        系統將自動比對您的 Google 帳號權限<br>
-        如有多個帳號，請在下一步選擇正確的公務信箱
+        <div class="footer">
+            使用 Google 帳號自動驗證身份
+        </div>
     </div>
 
     <script>
-        // 重要：請替換成您最新的 GAS 部署網址
+        // 請將下方的 URL 替換成您在 GAS 部署後得到的「網頁應用程式網址」
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
 
-        const schools = [
-            "三和國小", "大坡國小", "成功國小",
-            "尚武國小", "岩灣國小", "朗島國小",
-            "鹿野國小", "綠島國小", "豐年國小"
-        ];
-
-        const container = document.getElementById('buttonGrid');
-        const loader = document.getElementById('loading-overlay');
-
-        schools.forEach(school => {
-            const btn = document.createElement('a');
-            btn.className = 'school-btn';
-            btn.href = "#";
-            btn.innerText = school;
-            btn.onclick = (e) => {
-                e.preventDefault();
-                loader.style.display = 'flex';
-                // 使用 target="_top" 確保在最外層開啟
-                window.location.href = `${GAS_WEB_APP_URL}?unit=${encodeURIComponent(school)}`;
-            };
-            container.appendChild(btn);
-        });
+        function loginTo(unitName) {
+            // 直接跳轉到 GAS，由 GAS 處理 Google 帳號驗證
+            const authUrl = `${GAS_WEB_APP_URL}?unit=${encodeURIComponent(unitName)}`;
+            window.location.href = authUrl;
+        }
     </script>
+
 </body>
 </html>
