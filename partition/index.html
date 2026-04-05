@@ -7,9 +7,9 @@
     <script src="https://js.puter.com/v2/"></script>
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f4f8; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 90%; max-width: 480px; text-align: center; }
+        .container { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 90%; max-width: 480px; text-align: center; }
         
-        .auth-bar { 
+        .status-header { 
             background: #f8fafc; border-radius: 8px; padding: 12px; margin-bottom: 25px; 
             font-size: 0.85rem; color: #475569; display: flex; justify-content: space-between; align-items: center;
         }
@@ -33,70 +33,66 @@
 <body>
 
 <div class="container">
-    <!-- 登入狀態面板 -->
-    <div id="authPanel" class="auth-bar" style="display:none;">
+    <!-- 帳號狀態 -->
+    <div id="authPanel" class="status-header" style="display:none;">
         <span id="userEmail">檢查中...</span>
-        <button class="btn-switch" onclick="switchAccount()">切換帳號</button>
+        <button class="btn-switch" onclick="switchAccount()">切換/登出帳號</button>
     </div>
 
     <h1>115年度全國語文競賽<br>臺東縣分區賽成績系統</h1>
     
-    <div id="loading">正在連線驗證權限...</div>
+    <div id="loading">正在連線驗證...</div>
 
     <div class="grid">
-        <button class="school-btn" onclick="openSpreadsheet('三和國小')">三和國小</button>
-        <button class="school-btn" onclick="openSpreadsheet('大坡國小')">大坡國小</button>
-        <button class="school-btn" onclick="openSpreadsheet('成功國小')">成功國小</button>
-        <button class="school-btn" onclick="openSpreadsheet('尚武國小')">尚武國小</button>
-        <button class="school-btn" onclick="openSpreadsheet('岩灣國小')">岩灣國小</button>
-        <button class="school-btn" onclick="openSpreadsheet('朗島國小')">朗島國小</button>
-        <button class="school-btn" onclick="openSpreadsheet('鹿野國小')">鹿野國小</button>
-        <button class="school-btn" onclick="openSpreadsheet('綠島國小')">綠島國小</button>
-        <button class="school-btn" onclick="openSpreadsheet('豐年國小')">豐年國小</button>
+        <button class="school-btn" onclick="openLink('三和國小')">三和國小</button>
+        <button class="school-btn" onclick="openLink('大坡國小')">大坡國小</button>
+        <button class="school-btn" onclick="openLink('成功國小')">成功國小</button>
+        <button class="school-btn" onclick="openLink('尚武國小')">尚武國小</button>
+        <button class="school-btn" onclick="openLink('岩灣國小')">岩灣國小</button>
+        <button class="school-btn" onclick="openLink('朗島國小')">朗島國小</button>
+        <button class="school-btn" onclick="openLink('鹿野國小')">鹿野國小</button>
+        <button class="school-btn" onclick="openLink('綠島國小')">綠島國小</button>
+        <button class="school-btn" onclick="openLink('豐年國小')">豐年國小</button>
     </div>
 
     <div class="footer">
-        ※ 第一次使用請在 Google 授權畫面勾選「查看電子郵件地址」
+        ※ 登入時請務必勾選確認授權 Email 地址
     </div>
 </div>
 
 <script>
-    // ！！！請將下方改為您部署後的 GAS 網址 ！！！
+    // ！！！ 重要：請填入您最新的 GAS 網址 ！！！
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxkjmHEZ7lI_BXX8p36RKegaUkzWPEjVyMaSl-X-EBhrHeUdf3_KD43F8QMm0DvJBF3AA/exec";
 
-    /**
-     * 主要執行邏輯
-     */
-    async function openSpreadsheet(unitName) {
+    async function openLink(unitName) {
         setLoading(true);
         try {
-            // 1. 確保已登入
+            // 1. 確保登入狀態
             if (!puter.auth.isSignedIn()) {
                 await puter.auth.signIn();
             }
 
-            // 2. 獲取 User 物件
             let user = await puter.auth.getUser();
 
-            // 3. 解決「無法獲取 Email」的核心機制
-            // 如果 user 存在但 email 為空，代表 Puter 本地快取損壞或未授權，強制登出重來
+            // 2. 核心修正：解決 Email 缺失問題
+            // 如果 Puter 返回了 User 物件但沒有 email，代表緩存無權限，強制重來
             if (!user || !user.email) {
-                console.warn("偵測到授權不完整，強制重置連線...");
+                console.log("Email 缺失，執行強制重連...");
                 await puter.auth.signOut();
                 await puter.auth.signIn();
                 user = await puter.auth.getUser();
             }
 
-            // 最終防禦檢查
+            // 最終檢查
             if (!user || !user.email) {
-                alert("錯誤：無法取得您的 Google Email。\n請點擊「切換帳號」並確保登入時允許 Email 權限。");
+                alert("無法獲取電子郵件地址。\n請點擊「切換帳號」按鈕並確保在 Google 視窗勾選允許 Email。");
                 setLoading(false);
                 return;
             }
 
             updateAuthUI(user.email);
 
-            // 4. 呼叫 GAS 進行 Email 比對
+            // 3. 送往後端
             const response = await fetch(GAS_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -113,17 +109,14 @@
 
         } catch (err) {
             console.error(err);
-            alert("系統連線失敗，請檢查網路或重新整理頁面。");
+            alert("伺服器連線異常，請檢查 GAS 網址或網路。");
         } finally {
             setLoading(false);
         }
     }
 
-    /**
-     * 切換帳號功能
-     */
     function switchAccount() {
-        if (confirm("確定要登出並切換不同 Google 帳號嗎？")) {
+        if (confirm("確定要登出並選擇其他 Google 帳號嗎？")) {
             puter.auth.signOut();
             location.reload(); 
         }
@@ -138,13 +131,11 @@
         document.getElementById('loading').style.display = show ? "block" : "none";
     }
 
-    // 啟動時偵測狀態
+    // 初始化自動檢查
     puter.ui.onReady(async () => {
         if (puter.auth.isSignedIn()) {
             const user = await puter.auth.getUser();
-            if (user && user.email) {
-                updateAuthUI(user.email);
-            }
+            if (user && user.email) updateAuthUI(user.email);
         }
     });
 </script>
